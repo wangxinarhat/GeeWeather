@@ -3,9 +3,12 @@ package wang.wangxinarhat.geeweather.utils;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
@@ -22,6 +25,7 @@ import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
 
+import wang.wangxinarhat.geeweather.R;
 import wang.wangxinarhat.geeweather.global.BaseApplication;
 
 
@@ -30,6 +34,63 @@ import wang.wangxinarhat.geeweather.global.BaseApplication;
  * Created by sacowiw on 15/10/24.
  */
 public class SomeUtils {
+
+
+    /**
+     * 获取版本号
+     *
+     * @return 当前应用的版本号
+     */
+
+    public static String getVersion(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            String version = info.versionName;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return context.getString(R.string.no_found_version_name);
+        }
+    }
+
+
+    /**
+     *
+     * @param context
+     * @return 版本号
+     */
+    public static int getVersionCode(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            int version = info.versionCode;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+
+    /**
+     * 只关注是否联网
+     * @param context
+     * @return
+     */
+    public static boolean isNetworkConnected(Context context) {
+        if (context != null) {
+            ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
+            if (mNetworkInfo != null) {
+                return mNetworkInfo.isAvailable();
+            }
+        }
+        return false;
+    }
+
+
+
     /**
      * 清空常规（动态,训练,资讯）内容的提示数量
      *

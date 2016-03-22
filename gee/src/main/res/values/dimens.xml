@@ -8,6 +8,9 @@
     <dimen name="fab_margin">16dp</dimen>
 
 
+    <dimen name="app_bar_height">256dp</dimen>
+
+
     <!--字体大小-->
     <dimen name="text_size_display4">112dp</dimen>
     <dimen name="text_size_display3">56dp</dimen>
