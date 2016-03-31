@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 
+import retrofit.RxJavaCallAdapterFactory;
+
 /**
  * Created by zk on 2015/12/16.
  */

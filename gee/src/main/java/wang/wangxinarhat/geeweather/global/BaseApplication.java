@@ -3,6 +3,9 @@ package wang.wangxinarhat.geeweather.global;
 import android.app.Application;
 import android.content.Context;
 
+import wang.wangxinarhat.geeweather.common.CrashHandler;
+import wang.wangxinarhat.geeweather.common.RetrofitSingleton;
+
 /**
  * Created by wang on 2016/3/4.
  */
@@ -14,14 +17,6 @@ public class BaseApplication extends Application {
         return mApplication;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        if (null == mApplication) {
-            mApplication = this;
-        }
-    }
 
 
 
@@ -32,6 +27,10 @@ public class BaseApplication extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
+
+        if (null == mApplication) {
+            mApplication = this;
+        }
         mAppContext = getApplicationContext();
         // 初始化 retrofit
         RetrofitSingleton.init(getApplicationContext());
