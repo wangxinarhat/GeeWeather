@@ -1,11 +1,14 @@
 package wang.wangxinarhat.geeweather.domain;
 
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class Weather implements Serializable {
+public class Weather extends RecyclerView.ViewHolder implements Serializable {
 
     /**
      * city : {"aqi":"99","co":"1","no2":"87","o3":"36","pm10":"106","pm25":"74","qlty":"良","so2":"16"}
@@ -81,6 +84,10 @@ public class Weather implements Serializable {
      */
 
     @SerializedName("hourly_forecast") public List<HourlyForecastEntity> hourlyForecast;
+
+    public Weather(View itemView) {
+        super(itemView);
+    }
 
     public static class AqiEntity implements Serializable {
         /**

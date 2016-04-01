@@ -1,4 +1,4 @@
-package wang.wangxinarhat.geeweather.adapter;
+package wang.wangxinarhat.geeweather.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -28,54 +28,56 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static String TAG = WeatherAdapter.class.getSimpleName();
 
     private Context mContext;
-    private final int TYPE_ONE = 0;
-    private final int TYPE_TWO = 1;
-    private final int TYPE_THREE = 2;
-    private final int TYPE_FORE = 3;
+    private final int TYPE_WEATHER_NOW = 0;
+    private final int TYPE_WEATHER_HOURS = 1;
+    private final int TYPE_WEATHER_SUGGESTION = 2;
+    private final int TYPE_WEATHER_HISTORY = 3;
 
     private Weather mWeatherData;
     private Setting mSetting;
 
 
-    public WeatherAdapter(Context context, Weather weatherData) {
+    public WeatherAdapter(Context context, Weather weather) {
         mContext = context;
-        this.mWeatherData = weatherData;
+        this.mWeatherData = weather;
 
         mSetting = Setting.getInstance();
     }
 
 
-    @Override public int getItemViewType(int position) {
-        if (position == TYPE_ONE) {
-            return TYPE_ONE;
+    @Override
+    public int getItemViewType(int position) {
+        if (position == TYPE_WEATHER_NOW) {
+            return TYPE_WEATHER_NOW;
         }
-        if (position == TYPE_TWO) {
-            return TYPE_TWO;
+        if (position == TYPE_WEATHER_HOURS) {
+            return TYPE_WEATHER_HOURS;
         }
-        if (position == TYPE_THREE) {
-            return TYPE_THREE;
+        if (position == TYPE_WEATHER_SUGGESTION) {
+            return TYPE_WEATHER_SUGGESTION;
         }
-        if (position == TYPE_FORE) {
-            return TYPE_FORE;
+        if (position == TYPE_WEATHER_HISTORY) {
+            return TYPE_WEATHER_HISTORY;
         }
         return super.getItemViewType(position);
     }
 
 
-    @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == TYPE_ONE) {
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_WEATHER_NOW) {
             return new NowWeatherViewHolder(
                     LayoutInflater.from(mContext).inflate(R.layout.item_temperature, parent, false));
         }
-        if (viewType == TYPE_TWO) {
+        if (viewType == TYPE_WEATHER_HOURS) {
             return new HoursWeatherViewHolder(
                     LayoutInflater.from(mContext).inflate(R.layout.item_hour_info, parent, false));
         }
-        if (viewType == TYPE_THREE) {
+        if (viewType == TYPE_WEATHER_SUGGESTION) {
             return new SuggestionViewHolder(
                     LayoutInflater.from(mContext).inflate(R.layout.item_suggestion, parent, false));
         }
-        if (viewType == TYPE_FORE) {
+        if (viewType == TYPE_WEATHER_HISTORY) {
             return new ForecastViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_forecast, parent, false));
         }
 
@@ -83,27 +85,30 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        if (holder instanceof NowWeatherViewHolder) {
+        int ItemViewType = getItemViewType(position);
+
+        if (ItemViewType == TYPE_WEATHER_NOW) {
             try {
                 ((NowWeatherViewHolder) holder).tempFlu.setText(mWeatherData.now.tmp + "℃");
                 ((NowWeatherViewHolder) holder).tempMax.setText("↑ " + mWeatherData.dailyForecast.get(0).tmp.max + "°");
                 ((NowWeatherViewHolder) holder).tempMin.setText("↓ " + mWeatherData.dailyForecast.get(0).tmp.min + "°");
-                 if (mWeatherData.aqi != null) {
+                if (mWeatherData.aqi != null) {
                     ((NowWeatherViewHolder) holder).tempPm.setText("PM25： " + mWeatherData.aqi.city.pm25);
                     ((NowWeatherViewHolder) holder).tempQuality.setText("空气质量： " + mWeatherData.aqi.city.qlty);
-                 }
+                }
                 Glide.with(mContext)
-                     .load(mSetting.getInt(mWeatherData.now.cond.txt, R.mipmap.none))
-                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                     .into(((NowWeatherViewHolder) holder).weatherIcon);
+                        .load(mSetting.getInt(mWeatherData.now.cond.txt, R.mipmap.none))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(((NowWeatherViewHolder) holder).weatherIcon);
             } catch (Exception e) {
                 PLog.e(TAG, e.toString());
             }
 
         }
-        if (holder instanceof HoursWeatherViewHolder) {
+        if (ItemViewType == TYPE_WEATHER_HOURS) {
             try {
                 for (int i = 0; i < mWeatherData.hourlyForecast.size(); i++) {
                     //s.subString(s.length-3,s.length);
@@ -122,7 +127,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 PLog.e(TAG, e.toString());
             }
         }
-        if (holder instanceof SuggestionViewHolder) {
+        if (ItemViewType == TYPE_WEATHER_SUGGESTION) {
             try {
 
                 ((SuggestionViewHolder) holder).clothBrief.setText("穿衣指数---" + mWeatherData.suggestion.drsg.brf);
@@ -141,7 +146,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
 
-        if (holder instanceof ForecastViewHolder) {
+        if (ItemViewType == TYPE_WEATHER_HISTORY) {
             try {
                 //今日 明日
                 ((ForecastViewHolder) holder).forecastDate[0].setText("今日");
@@ -157,10 +162,10 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
 
                     Glide.with(mContext)
-                         .load(mSetting.getInt(mWeatherData.dailyForecast.get(i).cond.txtD, R.mipmap.none))
-                         .crossFade()
-                         .diskCacheStrategy(DiskCacheStrategy.ALL)
-                         .into(((ForecastViewHolder) holder).forecastIcon[i]);
+                            .load(mSetting.getInt(mWeatherData.dailyForecast.get(i).cond.txtD, R.mipmap.none))
+                            .crossFade()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(((ForecastViewHolder) holder).forecastIcon[i]);
 
                     ((ForecastViewHolder) holder).forecastTemp[i].setText(
                             mWeatherData.dailyForecast.get(i).tmp.min + "° " +
@@ -182,7 +187,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
 
-    @Override public int getItemCount() {
+    @Override
+    public int getItemCount() {
         return 4;
     }
 

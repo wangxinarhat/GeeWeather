@@ -27,16 +27,17 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import wang.wangxinarhat.geeweather.R;
-import wang.wangxinarhat.geeweather.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.common.RetrofitSingleton;
 import wang.wangxinarhat.geeweather.domain.Setting;
 import wang.wangxinarhat.geeweather.domain.Weather;
 import wang.wangxinarhat.geeweather.domain.WeatherAPI;
+import wang.wangxinarhat.geeweather.ui.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.utils.SomeUtils;
 
 public class MainActivity extends BaseActivity
@@ -68,7 +69,7 @@ public class MainActivity extends BaseActivity
     @Bind(R.id.drawer)
     DrawerLayout drawer;
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private Observer<Weather> observer;
     private WeatherAdapter mAdapter;
 
@@ -117,6 +118,36 @@ public class MainActivity extends BaseActivity
         };
 
         fetchDataByCache(observer);
+    }
+
+    private void loadData() {
+
+        Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(String s) {
+
+            }
+        };
+
+        Observable observable = Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                subscriber.onNext("Hello");
+                subscriber.onNext("Hi");
+                subscriber.onNext("Aloha");
+                subscriber.onCompleted();
+            }
+        });
     }
 
 
