@@ -3,8 +3,8 @@ package wang.wangxinarhat.geeweather.common;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
-import wang.wangxinarhat.geeweather.domain.VersionAPI;
-import wang.wangxinarhat.geeweather.domain.WeatherAPI;
+import wang.wangxinarhat.geeweather.model.VersionAPI;
+import wang.wangxinarhat.geeweather.model.WeatherAPI;
 
 /**
  * Created by hugo on 2016/2/16 0016.

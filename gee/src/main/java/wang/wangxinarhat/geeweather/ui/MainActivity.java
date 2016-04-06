@@ -34,9 +34,9 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import wang.wangxinarhat.geeweather.R;
 import wang.wangxinarhat.geeweather.common.RetrofitSingleton;
-import wang.wangxinarhat.geeweather.domain.Setting;
-import wang.wangxinarhat.geeweather.domain.Weather;
-import wang.wangxinarhat.geeweather.domain.WeatherAPI;
+import wang.wangxinarhat.geeweather.model.Setting;
+import wang.wangxinarhat.geeweather.model.Weather;
+import wang.wangxinarhat.geeweather.model.WeatherAPI;
 import wang.wangxinarhat.geeweather.ui.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.utils.SomeUtils;
 

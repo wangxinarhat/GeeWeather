@@ -1,4 +1,4 @@
-package wang.wangxinarhat.geeweather.domain;
+package wang.wangxinarhat.geeweather.model;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

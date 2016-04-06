@@ -18,8 +18,8 @@ import java.util.Calendar;
 
 import wang.wangxinarhat.geeweather.R;
 import wang.wangxinarhat.geeweather.common.PLog;
-import wang.wangxinarhat.geeweather.domain.Setting;
-import wang.wangxinarhat.geeweather.domain.Weather;
+import wang.wangxinarhat.geeweather.model.Setting;
+import wang.wangxinarhat.geeweather.model.Weather;
 
 /**
  * Created by hugo on 2016/1/31 0031.

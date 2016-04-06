@@ -1,4 +1,4 @@
-package wang.wangxinarhat.geeweather.domain;
+package wang.wangxinarhat.geeweather.model;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,4 @@
-package wang.wangxinarhat.geeweather.domain;
+package wang.wangxinarhat.geeweather.model;
 
 /**
  * Created by wang on 2016/3/19.

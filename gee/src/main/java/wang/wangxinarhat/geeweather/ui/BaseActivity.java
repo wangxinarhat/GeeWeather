@@ -9,7 +9,7 @@ import android.view.WindowManager;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import wang.wangxinarhat.geeweather.common.ACache;
-import wang.wangxinarhat.geeweather.domain.Setting;
+import wang.wangxinarhat.geeweather.model.Setting;
 
 /**
  * Created by wang on 2016/3/19.
