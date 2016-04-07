@@ -17,6 +17,7 @@ import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 
 import retrofit.RxJavaCallAdapterFactory;
+import wang.wangxinarhat.geeweather.net.NetWork;
 
 /**
  * Created by zk on 2015/12/16.
@@ -45,7 +46,7 @@ public class RetrofitSingleton {
         Gson gson = new GsonBuilder().create();
 
         retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson))
-                .baseUrl(ApiInterface.HOST)
+                .baseUrl(NetWork.HOST)
                 .callbackExecutor(executor)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();

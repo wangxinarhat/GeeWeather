@@ -1,6 +1,6 @@
 package wang.wangxinarhat.geeweather.ui.adapter;
 
-import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,7 +27,7 @@ import wang.wangxinarhat.geeweather.model.Weather;
 public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static String TAG = WeatherAdapter.class.getSimpleName();
 
-    private Context mContext;
+    //    private Context mContext;
     private final int TYPE_WEATHER_NOW = 0;
     private final int TYPE_WEATHER_HOURS = 1;
     private final int TYPE_WEATHER_SUGGESTION = 2;
@@ -37,10 +37,12 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Setting mSetting;
 
 
-    public WeatherAdapter(Context context, Weather weather) {
-        mContext = context;
-        this.mWeatherData = weather;
+    public void setData(Weather data) {
+        this.mWeatherData = data;
+        notifyDataSetChanged();
+    }
 
+    public WeatherAdapter() {
         mSetting = Setting.getInstance();
     }
 
@@ -67,18 +69,18 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_WEATHER_NOW) {
             return new NowWeatherViewHolder(
-                    LayoutInflater.from(mContext).inflate(R.layout.item_temperature, parent, false));
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_temperature, parent, false));
         }
         if (viewType == TYPE_WEATHER_HOURS) {
             return new HoursWeatherViewHolder(
-                    LayoutInflater.from(mContext).inflate(R.layout.item_hour_info, parent, false));
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_hour_info, parent, false));
         }
         if (viewType == TYPE_WEATHER_SUGGESTION) {
             return new SuggestionViewHolder(
-                    LayoutInflater.from(mContext).inflate(R.layout.item_suggestion, parent, false));
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_suggestion, parent, false));
         }
         if (viewType == TYPE_WEATHER_HISTORY) {
-            return new ForecastViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_forecast, parent, false));
+            return new ForecastViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_forecast, parent, false));
         }
 
         return null;
@@ -99,12 +101,14 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((NowWeatherViewHolder) holder).tempPm.setText("PM25： " + mWeatherData.aqi.city.pm25);
                     ((NowWeatherViewHolder) holder).tempQuality.setText("空气质量： " + mWeatherData.aqi.city.qlty);
                 }
-                Glide.with(mContext)
+                Glide.with(holder.itemView.getContext())
                         .load(mSetting.getInt(mWeatherData.now.cond.txt, R.mipmap.none))
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(((NowWeatherViewHolder) holder).weatherIcon);
             } catch (Exception e) {
-                PLog.e(TAG, e.toString());
+                Snackbar.make(holder.itemView, R.string.network_error, Snackbar.LENGTH_SHORT).show();
+
+                PLog.e(TAG, e.toString() + "                 TYPE_WEATHER_NOW         ");
             }
 
         }
@@ -123,8 +127,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             mWeatherData.hourlyForecast.get(i).wind.spd + "Km");
                 }
             } catch (Exception e) {
-                //Snackbar.make(holder.itemView, R.string.api_error, Snackbar.LENGTH_SHORT).show();
-                PLog.e(TAG, e.toString());
+                Snackbar.make(holder.itemView, R.string.network_error, Snackbar.LENGTH_SHORT).show();
+
+                PLog.e(TAG, e.toString() + "                 TYPE_WEATHER_HOURS         ");
             }
         }
         if (ItemViewType == TYPE_WEATHER_SUGGESTION) {
@@ -142,15 +147,17 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ((SuggestionViewHolder) holder).fluBrief.setText("感冒指数---" + mWeatherData.suggestion.flu.brf);
                 ((SuggestionViewHolder) holder).fluTxt.setText(mWeatherData.suggestion.flu.txt);
             } catch (Exception e) {
-                PLog.e(TAG, e.toString());
+                Snackbar.make(holder.itemView, R.string.network_error, Snackbar.LENGTH_SHORT).show();
+
+                PLog.e(TAG, e.toString() + "                 TYPE_WEATHER_SUGGESTION         ");
             }
         }
 
         if (ItemViewType == TYPE_WEATHER_HISTORY) {
             try {
                 //今日 明日
-                ((ForecastViewHolder) holder).forecastDate[0].setText("今日");
-                ((ForecastViewHolder) holder).forecastDate[1].setText("明日");
+//            ((ForecastViewHolder) holder).forecastDate[0].setText("今日");
+//            ((ForecastViewHolder) holder).forecastDate[1].setText("明日");
                 for (int i = 0; i < mWeatherData.dailyForecast.size(); i++) {
                     if (i > 1) {
                         try {
@@ -161,7 +168,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         }
                     }
 
-                    Glide.with(mContext)
+                    Glide.with(holder.itemView.getContext())
                             .load(mSetting.getInt(mWeatherData.dailyForecast.get(i).cond.txtD, R.mipmap.none))
                             .crossFade()
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -180,8 +187,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                     "" + mWeatherData.dailyForecast.get(i).pop + "%。");
                 }
             } catch (Exception e) {
-                //Snackbar.make(holder.itemView, R.string.api_error, Snackbar.LENGTH_SHORT).show();
-                PLog.e(TAG, e.toString());
+                Snackbar.make(holder.itemView, R.string.network_error, Snackbar.LENGTH_SHORT).show();
+                PLog.e(TAG, e.toString() + "                 TYPE_WEATHER_HISTORY         ");
             }
         }
     }
@@ -265,24 +272,40 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      * 当日小时预告
      */
     class HoursWeatherViewHolder extends RecyclerView.ViewHolder {
+
+
         private LinearLayout itemHourInfoLinearlayout;
-        private TextView[] mClock = new TextView[mWeatherData.hourlyForecast.size()];
-        private TextView[] mTemp = new TextView[mWeatherData.hourlyForecast.size()];
-        private TextView[] mHumidity = new TextView[mWeatherData.hourlyForecast.size()];
-        private TextView[] mWind = new TextView[mWeatherData.hourlyForecast.size()];
+        private TextView[] mClock;
+        private TextView[] mTemp;
+        private TextView[] mHumidity;
+        private TextView[] mWind;
 
 
         public HoursWeatherViewHolder(View itemView) {
             super(itemView);
-            itemHourInfoLinearlayout = (LinearLayout) itemView.findViewById(R.id.item_hour_info_linearlayout);
 
-            for (int i = 0; i < mWeatherData.hourlyForecast.size(); i++) {
-                View view = View.inflate(mContext, R.layout.item_hour_info_line, null);
-                mClock[i] = (TextView) view.findViewById(R.id.one_clock);
-                mTemp[i] = (TextView) view.findViewById(R.id.one_temp);
-                mHumidity[i] = (TextView) view.findViewById(R.id.one_humidity);
-                mWind[i] = (TextView) view.findViewById(R.id.one_wind);
-                itemHourInfoLinearlayout.addView(view);
+            try {
+
+                if (null != mWeatherData) {
+                    itemHourInfoLinearlayout = (LinearLayout) itemView.findViewById(R.id.item_hour_info_linearlayout);
+
+                    mClock = new TextView[mWeatherData.hourlyForecast.size()];
+                    mTemp = new TextView[mWeatherData.hourlyForecast.size()];
+                    mHumidity = new TextView[mWeatherData.hourlyForecast.size()];
+                    mWind = new TextView[mWeatherData.hourlyForecast.size()];
+
+
+                    for (int i = 0; i < mWeatherData.hourlyForecast.size(); i++) {
+                        View view = View.inflate(itemView.getContext(), R.layout.item_hour_info_line, null);
+                        mClock[i] = (TextView) view.findViewById(R.id.one_clock);
+                        mTemp[i] = (TextView) view.findViewById(R.id.one_temp);
+                        mHumidity[i] = (TextView) view.findViewById(R.id.one_humidity);
+                        mWind[i] = (TextView) view.findViewById(R.id.one_wind);
+                        itemHourInfoLinearlayout.addView(view);
+                    }
+                }
+            } catch (Exception e) {
+                PLog.e(TAG, e.getMessage());
             }
         }
     }
@@ -322,22 +345,35 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
      */
     class ForecastViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout forecastLinear;
-        private TextView[] forecastDate = new TextView[mWeatherData.dailyForecast.size()];
-        private TextView[] forecastTemp = new TextView[mWeatherData.dailyForecast.size()];
-        private TextView[] forecastTxt = new TextView[mWeatherData.dailyForecast.size()];
-        private ImageView[] forecastIcon = new ImageView[mWeatherData.dailyForecast.size()];
+        private TextView[] forecastDate;
+        private TextView[] forecastTemp;
+        private TextView[] forecastTxt;
+        private ImageView[] forecastIcon;
 
 
         public ForecastViewHolder(View itemView) {
             super(itemView);
-            forecastLinear = (LinearLayout) itemView.findViewById(R.id.forecast_linear);
-            for (int i = 0; i < mWeatherData.dailyForecast.size(); i++) {
-                View view = View.inflate(mContext, R.layout.item_forecast_line, null);
-                forecastDate[i] = (TextView) view.findViewById(R.id.forecast_date);
-                forecastTemp[i] = (TextView) view.findViewById(R.id.forecast_temp);
-                forecastTxt[i] = (TextView) view.findViewById(R.id.forecast_txt);
-                forecastIcon[i] = (ImageView) view.findViewById(R.id.forecast_icon);
-                forecastLinear.addView(view);
+
+            try {
+
+                if (null != mWeatherData) {
+                    forecastLinear = (LinearLayout) itemView.findViewById(R.id.forecast_linear);
+
+                    forecastDate = new TextView[mWeatherData.dailyForecast.size()];
+                    forecastTemp = new TextView[mWeatherData.dailyForecast.size()];
+                    forecastTxt = new TextView[mWeatherData.dailyForecast.size()];
+                    forecastIcon = new ImageView[mWeatherData.dailyForecast.size()];
+                    for (int i = 0; i < mWeatherData.dailyForecast.size(); i++) {
+                        View view = View.inflate(itemView.getContext(), R.layout.item_forecast_line, null);
+                        forecastDate[i] = (TextView) view.findViewById(R.id.forecast_date);
+                        forecastTemp[i] = (TextView) view.findViewById(R.id.forecast_temp);
+                        forecastTxt[i] = (TextView) view.findViewById(R.id.forecast_txt);
+                        forecastIcon[i] = (ImageView) view.findViewById(R.id.forecast_icon);
+                        forecastLinear.addView(view);
+                    }
+                }
+            } catch (Exception e) {
+                PLog.e(TAG, e.getMessage());
             }
         }
     }

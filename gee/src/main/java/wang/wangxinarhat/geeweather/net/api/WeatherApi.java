@@ -1,5 +1,4 @@
-package wang.wangxinarhat.geeweather.common;
-
+package wang.wangxinarhat.geeweather.net.api;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
@@ -7,13 +6,12 @@ import wang.wangxinarhat.geeweather.model.VersionAPI;
 import wang.wangxinarhat.geeweather.model.WeatherInfo;
 
 /**
- * Created by hugo on 2016/2/16 0016.
+ * Created by wang on 2016/4/7.
  */
-public interface ApiInterface {
-
+public interface WeatherApi {
 
     @GET("weather")
-    rx.Observable<WeatherInfo> mWeatherAPI(@Query("city") String city, @Query("key") String key);
+    rx.Observable<WeatherInfo> queryWeather(@Query("cityid") String city, @Query("key") String key);
 
     //而且在Retrofit 2.0中我们还可以在@Url里面定义完整的URL：这种情况下Base URL会被忽略。
     @GET("http://api.fir.im/apps/latest/5630e5f1f2fc425c52000006")

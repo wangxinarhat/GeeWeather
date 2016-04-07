@@ -8,6 +8,7 @@ import android.view.WindowManager;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
+import rx.Subscription;
 import wang.wangxinarhat.geeweather.common.ACache;
 import wang.wangxinarhat.geeweather.model.Setting;
 
@@ -21,7 +22,25 @@ public class BaseActivity extends AppCompatActivity {
     public Setting mSetting = null;
 
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
+    protected Subscription subscription;
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unsubscribe();
+    }
+
+
+    protected void unsubscribe() {
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         aCache = ACache.get(BaseActivity.this);
         mSetting = Setting.getInstance();
@@ -40,7 +59,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    @Override public void setContentView(int layoutResID) {
+    @Override
+    public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
     }
 

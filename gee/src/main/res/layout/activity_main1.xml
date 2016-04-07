@@ -58,12 +58,43 @@
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout
+
+
+
+
+        <com.race604.flyrefresh.FlyRefreshLayout
+            android:id="@+id/fly_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:context=".MainActivity">
+
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+
+                <include
+                    layout="@layout/progressbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="150dp" />
+            </FrameLayout>
+        </com.race604.flyrefresh.FlyRefreshLayout>
+
+      <!--  <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swiprefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="8dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            >
 
 
             <FrameLayout
@@ -85,7 +116,7 @@
             </FrameLayout>
 
         </android.support.v4.widget.SwipeRefreshLayout>
-
+-->
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
