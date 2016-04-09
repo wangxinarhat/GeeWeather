@@ -1,22 +1,19 @@
 package wang.wangxinarhat.geeweather.ui;
 
-import android.graphics.Color;
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+
+import com.race604.flyrefresh.FlyRefreshLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -32,33 +29,17 @@ import wang.wangxinarhat.geeweather.ui.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.utils.LogUtils;
 import wang.wangxinarhat.geeweather.utils.MyToast;
 
-public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPullRefreshListener {
 
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    @Bind(R.id.bannner)
-    ImageView bannner;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
-    @Bind(R.id.toolbar_layout)
-    CollapsingToolbarLayout toolbarLayout;
-    @Bind(R.id.app_bar)
-    AppBarLayout appBar;
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
-    @Bind(R.id.swiprefresh)
-    SwipeRefreshLayout swiprefresh;
-    @Bind(R.id.progressBar)
-    ProgressBar progressBar;
-    @Bind(R.id.fab)
-    FloatingActionButton fab;
-    @Bind(R.id.coord)
-    CoordinatorLayout coord;
-    @Bind(R.id.nav_view)
-    NavigationView navView;
-    @Bind(R.id.drawer_layout)
-    DrawerLayout drawerLayout;
+    @Bind(R.id.fly_layout)
+    FlyRefreshLayout flyLayout;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
     private WeatherAdapter adapter;
     private Observer<Weather> observer;
 
@@ -77,8 +58,6 @@ public class MainActivity extends BaseActivity
     }
 
     private void loadData() {
-
-        swiprefresh.setRefreshing(true);
 
 
 //        unsubscribe();
@@ -103,7 +82,7 @@ public class MainActivity extends BaseActivity
 
                 @Override
                 public void onError(Throwable e) {
-                    swiprefresh.setRefreshing(false);
+                    flyLayout.onRefreshFinish();
 
                     LogUtils.LOGE(TAG, e.getMessage());
 
@@ -112,7 +91,7 @@ public class MainActivity extends BaseActivity
 
                 @Override
                 public void onNext(Weather weather) {
-                    swiprefresh.setRefreshing(false);
+                    flyLayout.onRefreshFinish();
                     if (null == adapter) {
                         adapter = new WeatherAdapter();
                     }
@@ -127,23 +106,57 @@ public class MainActivity extends BaseActivity
 
     private void initView() {
 
-        recyclerview.setLayoutManager(new LinearLayoutManager(this));
-        swiprefresh.setColorSchemeColors(Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerview.setLayoutManager(linearLayoutManager);
 
 
-        swiprefresh.setOnRefreshListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+        toolbar.setTitle("are you wangwangstar? ^_^");
+
+
+        flyLayout.setOnPullRefreshListener(this);
+
+
+
+        View actionButton = flyLayout.getHeaderActionButton();
+        if (actionButton != null) {
+            actionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    flyLayout.startRefresh();
+                }
+            });
+        }
+
+        recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
 
-                if (verticalOffset >= 0) {
-                    swiprefresh.setEnabled(true);
-                } else {
-                    swiprefresh.setEnabled(false);
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+//                -1 up; 1 down
+
+                if (!recyclerView.canScrollVertically(-1)) {
+//                    LogUtils.LOGE(TAG, "-1-1-1-1-1-1");
+//                    onScrolledToTop();
+
+//                    (!recyclerView.canScrollVertically(1))
+                } else  {
+//                    flyLayout.setNestedScrollingEnabled(false);
+//                    LogUtils.LOGE(TAG, "1111111111111111111111");
+//                    onScrolledToBottom();
                 }
             }
         });
+
+
 
 
     }
@@ -169,33 +182,6 @@ public class MainActivity extends BaseActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (null != drawer) {
-            drawer.closeDrawer(GravityCompat.START);
-        }
-        return true;
     }
 
 
@@ -246,8 +232,34 @@ public class MainActivity extends BaseActivity
         }
     }
 
+
     @Override
-    public void onRefresh() {
+    public void onRefresh(FlyRefreshLayout view) {
+        View child = recyclerview.getChildAt(0);
+        if (child != null) {
+            bounceAnimateView(child.findViewById(R.id.icon));
+        }
+
         loadData();
+
+
     }
+
+    private void bounceAnimateView(View view) {
+        if (view == null) {
+            return;
+        }
+
+        Animator swing = ObjectAnimator.ofFloat(view, "rotationX", 0, 30, -20, 0);
+        swing.setDuration(400);
+        swing.setInterpolator(new AccelerateInterpolator());
+        swing.start();
+    }
+
+    @Override
+    public void onRefreshAnimationEnd(FlyRefreshLayout view) {
+
+    }
+
+
 }

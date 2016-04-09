@@ -1,1 +1,1 @@
-include ':gee'
+include ':gee', ':library'
