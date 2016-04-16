@@ -3,12 +3,14 @@ package wang.wangxinarhat.geeweather.ui;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -27,21 +29,28 @@ import wang.wangxinarhat.geeweather.net.NetWork;
 import wang.wangxinarhat.geeweather.net.operators.WeatherInfo2Weather;
 import wang.wangxinarhat.geeweather.ui.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.utils.LogUtils;
-import wang.wangxinarhat.geeweather.utils.MyToast;
+import wang.wangxinarhat.geeweather.utils.SomeUtils;
 
-public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPullRefreshListener {
+public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPullRefreshListener, NavigationView.OnNavigationItemSelectedListener {
 
 
     private static final String TAG = MainActivity.class.getSimpleName();
     @Bind(R.id.recyclerview)
-    RecyclerView recyclerview;
+    RecyclerView mRecyclerview;
     @Bind(R.id.fly_layout)
-    FlyRefreshLayout flyLayout;
+    FlyRefreshLayout mFlyLayout;
     @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    Toolbar mToolbar;
+    @Bind(R.id.nav_view)
+    NavigationView mNavView;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
+
 
     private WeatherAdapter adapter;
     private Observer<Weather> observer;
+    private boolean isLoading;
+    private long exitTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +68,18 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
     private void loadData() {
 
+        String cityName = mSetting.getString(Setting.CITY_NAME, "北京");
+        if (cityName != null) {
+            cityName = cityName.replace("市", "")
+                    .replace("省", "")
+                    .replace("自治区", "")
+                    .replace("特别行政区", "")
+                    .replace("地区", "")
+                    .replace("盟", "");
+        }
 
-//        unsubscribe();
+
+        isLoading = true;
         subscription = NetWork.getWeatherApi()
                 .queryWeather("CN101010100", Setting.KEY)
                 .map(WeatherInfo2Weather.newInstance())
@@ -78,24 +97,32 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
                 @Override
                 public void onCompleted() {
 
+
+                    if (SomeUtils.isNetworkConnected(MainActivity.this)) {
+                        Snackbar.make(mRecyclerview, "加载完毕，(*^▽^*)", Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Snackbar.make(mRecyclerview, "网络异常，(ಥ _ ಥ)", Snackbar.LENGTH_SHORT).show();
+                    }
+                    isLoading = false;
                 }
 
                 @Override
                 public void onError(Throwable e) {
-                    flyLayout.onRefreshFinish();
+                    mFlyLayout.onRefreshFinish();
 
+                    Snackbar.make(mRecyclerview, "网络异常，(ಥ _ ಥ)", Snackbar.LENGTH_SHORT).show();
                     LogUtils.LOGE(TAG, e.getMessage());
 
-                    MyToast.showConnectError();
+                    isLoading = false;
                 }
 
                 @Override
                 public void onNext(Weather weather) {
-                    flyLayout.onRefreshFinish();
+                    mFlyLayout.onRefreshFinish();
                     if (null == adapter) {
                         adapter = new WeatherAdapter();
                     }
-                    recyclerview.setAdapter(adapter);
+                    mRecyclerview.setAdapter(adapter);
                     adapter.setData(weather);
                 }
             };
@@ -107,91 +134,63 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
     private void initView() {
 
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        recyclerview.setLayoutManager(linearLayoutManager);
-
-
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        toolbar.setTitle("are you wangwangstar? ^_^");
-
-
-        flyLayout.setOnPullRefreshListener(this);
 
 
 
-        View actionButton = flyLayout.getHeaderActionButton();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(toggle);
+
+        toggle.syncState();
+
+        mNavView.setNavigationItemSelectedListener(this);
+
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerview.setLayoutManager(linearLayoutManager);
+
+
+
+
+        mFlyLayout.setOnPullRefreshListener(this);
+
+
+
+
+
+        View actionButton = mFlyLayout.getHeaderActionButton();
         if (actionButton != null) {
             actionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    flyLayout.startRefresh();
+                    mFlyLayout.startRefresh();
                 }
             });
         }
 
-        recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-//                -1 up; 1 down
-
-                if (!recyclerView.canScrollVertically(-1)) {
-//                    LogUtils.LOGE(TAG, "-1-1-1-1-1-1");
-//                    onScrolledToTop();
-
-//                    (!recyclerView.canScrollVertically(1))
-                } else  {
-//                    flyLayout.setNestedScrollingEnabled(false);
-//                    LogUtils.LOGE(TAG, "1111111111111111111111");
-//                    onScrolledToBottom();
-                }
-            }
-        });
-
-
-
-
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
 //        assert drawer != null;
-        if (null != drawer && drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (null != mDrawerLayout && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         } else {
+
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Snackbar.make(mRecyclerview, "再按一次退出程序", Snackbar.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+            }
+
+
             super.onBackPressed();
         }
     }
@@ -235,13 +234,18 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
     @Override
     public void onRefresh(FlyRefreshLayout view) {
-        View child = recyclerview.getChildAt(0);
-        if (child != null) {
-            bounceAnimateView(child.findViewById(R.id.icon));
+
+        if (!isLoading) {
+            View child = mRecyclerview.getChildAt(0);
+            if (child != null) {
+                bounceAnimateView(child.findViewById(R.id.icon));
+            }
+
+            loadData();
+
+        } else {
+            Snackbar.make(mRecyclerview, "加载中，↖(^ω^)↗", Snackbar.LENGTH_SHORT).show();
         }
-
-        loadData();
-
 
     }
 
@@ -262,4 +266,21 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
     }
 
 
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_geography) {
+
+        }  else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_about) {
+
+        }
+
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
 }

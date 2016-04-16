@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/daogenerator" />
             <option value="$PROJECT_DIR$/gee" />
             <option value="$PROJECT_DIR$/library" />
           </set>
@@ -15,6 +16,7 @@
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/daogenerator" />
             <option value="$PROJECT_DIR$/gee" />
             <option value="$PROJECT_DIR$/library" />
           </set>

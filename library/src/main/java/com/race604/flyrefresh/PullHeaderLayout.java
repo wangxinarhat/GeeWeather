@@ -189,101 +189,6 @@ public class PullHeaderLayout extends ViewGroup implements NestedScrollingParent
         return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
-    //--------------------------------------------------------------------------------------------------------------------------------
-
-    // NestedScrollingParent
-/*
-
-    @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        return isEnabled() && canChildScrollUp() && !mReturningToStart && !mRefreshing
-                && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
-    }
-
-    @Override
-    public void onNestedScrollAccepted(View child, View target, int axes) {
-        // Reset the counter of how much leftover scroll needs to be consumed.
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
-        // Dispatch up to the nested parent
-        startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
-        mTotalUnconsumed = 0;
-        mNestedScrollInProgress = true;
-    }
-
-    @Override
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        // If we are in the middle of consuming, a scroll, then we want to move the spinner back up
-        // before allowing the list to scroll
-        if (dy > 0 && mTotalUnconsumed > 0) {
-            if (dy > mTotalUnconsumed) {
-                consumed[1] = dy - (int) mTotalUnconsumed;
-                mTotalUnconsumed = 0;
-            } else {
-                mTotalUnconsumed -= dy;
-                consumed[1] = dy;
-
-            }
-            moveSpinner(mTotalUnconsumed);
-        }
-
-        // If a client layout is using a custom start position for the circle
-        // view, they mean to hide it again before scrolling the child view
-        // If we get back to mTotalUnconsumed == 0 and there is more to go, hide
-        // the circle so it isn't exposed if its blocking content is moved
-        if (mUsingCustomStart && dy > 0 && mTotalUnconsumed == 0
-                && Math.abs(dy - consumed[1]) > 0) {
-            mCircleView.setVisibility(View.GONE);
-        }
-
-        // Now let our nested parent consume the leftovers
-        final int[] parentConsumed = mParentScrollConsumed;
-        if (dispatchNestedPreScroll(dx - consumed[0], dy - consumed[1], parentConsumed, null)) {
-            consumed[0] += parentConsumed[0];
-            consumed[1] += parentConsumed[1];
-        }
-    }
-
-    @Override
-    public int getNestedScrollAxes() {
-        return mParentHelper.getNestedScrollAxes();
-    }
-
-    @Override
-    public void onStopNestedScroll(View target) {
-        mParentHelper.onStopNestedScroll(target);
-        mNestedScrollInProgress = false;
-        // Finish the spinner for nested scrolling if we ever consumed any
-        // unconsumed nested scroll
-        if (mTotalUnconsumed > 0) {
-            finishSpinner(mTotalUnconsumed);
-            mTotalUnconsumed = 0;
-        }
-        // Dispatch up our nested parent
-        stopNestedScroll();
-    }
-
-    @Override
-    public void onNestedScroll(final View target, final int dxConsumed, final int dyConsumed,
-                               final int dxUnconsumed, final int dyUnconsumed) {
-        // Dispatch up to the nested parent first
-        dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                mParentOffsetInWindow);
-
-        // This is a bit of a hack. Nested scrolling works from the bottom up, and as we are
-        // sometimes between two nested scrolling views, we need a way to be able to know when any
-        // nested scrolling parent has stopped handling events. We do that by using the
-        // 'offset in window 'functionality to see if we have been moved from the event.
-        // This is a decent indication of whether we should take over the event stream or not.
-        final int dy = dyUnconsumed + mParentOffsetInWindow[1];
-        if (dy < 0) {
-            mTotalUnconsumed += Math.abs(dy);
-            moveSpinner(mTotalUnconsumed);
-        }
-    }
-
-*/
-
-    //--------------------------------------------------------------------------------------------------------------------------------
     // NestedScrollingParent
 
     @Override
@@ -303,7 +208,8 @@ public class PullHeaderLayout extends ViewGroup implements NestedScrollingParent
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,  int dyUnconsumed) {
+    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                               int dyUnconsumed) {
         final int myConsumed = moveBy(dyUnconsumed);
         final int myUnconsumed = dyUnconsumed - myConsumed;
         dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null);
@@ -345,10 +251,10 @@ public class PullHeaderLayout extends ViewGroup implements NestedScrollingParent
         return flingWithNestedDispatch((int) velocityY);
     }
 
-//    @Override
-//    public int getNestedScrollAxes() {
-//        return mParentHelper.getNestedScrollAxes();
-//    }
+    @Override
+    public int getNestedScrollAxes() {
+        return mParentHelper.getNestedScrollAxes();
+    }
 
     public void setHeaderSize(int height, int maxHeight, int minHeight) {
         mHeaderController.setSize(height, maxHeight, minHeight);
@@ -419,7 +325,6 @@ public class PullHeaderLayout extends ViewGroup implements NestedScrollingParent
             mPullHeaderView = (IPullHeader) mHeaderView;
         }
     }
-
 
     @Override
     protected void onFinishInflate() {

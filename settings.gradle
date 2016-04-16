@@ -1,1 +1,1 @@
-include ':gee', ':library'
+include ':gee', ':library', ':daogenerator'

@@ -97,6 +97,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ((NowWeatherViewHolder) holder).tempFlu.setText(mWeatherData.now.tmp + "℃");
                 ((NowWeatherViewHolder) holder).tempMax.setText("↑ " + mWeatherData.dailyForecast.get(0).tmp.max + "°");
                 ((NowWeatherViewHolder) holder).tempMin.setText("↓ " + mWeatherData.dailyForecast.get(0).tmp.min + "°");
+                ((NowWeatherViewHolder) holder).position.setText( mWeatherData.basic.city);
+
+
                 if (mWeatherData.aqi != null) {
                     ((NowWeatherViewHolder) holder).tempPm.setText("PM25： " + mWeatherData.aqi.city.pm25);
                     ((NowWeatherViewHolder) holder).tempQuality.setText("空气质量： " + mWeatherData.aqi.city.qlty);
@@ -252,12 +255,13 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private TextView tempMin;
 
         private TextView tempPm;
-        private TextView tempQuality;
+        private TextView tempQuality,position;
 
 
         public NowWeatherViewHolder(View itemView) {
             super(itemView);
             cardView = (CardView) itemView.findViewById(R.id.cardView);
+            position = (TextView) itemView.findViewById(R.id.position);
             weatherIcon = (ImageView) itemView.findViewById(R.id.weather_icon);
             tempFlu = (TextView) itemView.findViewById(R.id.temp_flu);
             tempMax = (TextView) itemView.findViewById(R.id.temp_max);

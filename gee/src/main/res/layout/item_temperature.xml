@@ -20,8 +20,19 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="80dp"
-            android:layout_height="80dp"/>
+            android:layout_width="60dp"
+            android:layout_height="60dp"/>
+
+        <TextView
+            android:layout_marginLeft="@dimen/dimen_basic7"
+            android:id="@+id/position"
+            android:layout_marginTop="@dimen/dimen_basic7"
+            android:gravity="center_vertical"
+            android:layout_toRightOf="@id/weather_icon"
+            tools:text = "Beijing"
+            android:textSize="@dimen/dimen_basic6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:id="@+id/linear_temp"
