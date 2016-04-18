@@ -29,6 +29,8 @@ import wang.wangxinarhat.geeweather.net.NetWork;
 import wang.wangxinarhat.geeweather.net.operators.WeatherInfo2Weather;
 import wang.wangxinarhat.geeweather.ui.adapter.WeatherAdapter;
 import wang.wangxinarhat.geeweather.utils.LogUtils;
+import wang.wangxinarhat.geeweather.utils.MyToast;
+import wang.wangxinarhat.geeweather.utils.SPUtils;
 import wang.wangxinarhat.geeweather.utils.SomeUtils;
 
 public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPullRefreshListener, NavigationView.OnNavigationItemSelectedListener {
@@ -68,24 +70,28 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
     private void loadData() {
 
-        String cityName = mSetting.getString(Setting.CITY_NAME, "北京");
-        if (cityName != null) {
-            cityName = cityName.replace("市", "")
+        String district = SPUtils.getDistrict();
+        if (district != null) {
+            district = district.replace("市", "")
                     .replace("省", "")
                     .replace("自治区", "")
                     .replace("特别行政区", "")
                     .replace("地区", "")
+                    .replace("区", "")
+                    .replace("县", "")
                     .replace("盟", "");
+
+            isLoading = true;
+            subscription = NetWork.getWeatherApi()
+                    .queryWeather(district, Setting.KEY)
+                    .map(WeatherInfo2Weather.newInstance())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(getObserver());
+
+        } else {
+            MyToast.showShortToast("定位失败，请手动选择位置");
         }
-
-
-        isLoading = true;
-        subscription = NetWork.getWeatherApi()
-                .queryWeather("CN101010100", Setting.KEY)
-                .map(WeatherInfo2Weather.newInstance())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getObserver());
 
 
     }
@@ -97,8 +103,10 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
                 @Override
                 public void onCompleted() {
 
+                    mFlyLayout.onRefreshFinish();
 
                     if (SomeUtils.isNetworkConnected(MainActivity.this)) {
+
                         Snackbar.make(mRecyclerview, "加载完毕，(*^▽^*)", Snackbar.LENGTH_SHORT).show();
                     } else {
                         Snackbar.make(mRecyclerview, "网络异常，(ಥ _ ಥ)", Snackbar.LENGTH_SHORT).show();
@@ -118,7 +126,6 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
                 @Override
                 public void onNext(Weather weather) {
-                    mFlyLayout.onRefreshFinish();
                     if (null == adapter) {
                         adapter = new WeatherAdapter();
                     }
@@ -138,8 +145,6 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
-
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.setDrawerListener(toggle);
@@ -153,12 +158,7 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
         mRecyclerview.setLayoutManager(linearLayoutManager);
 
 
-
-
         mFlyLayout.setOnPullRefreshListener(this);
-
-
-
 
 
         View actionButton = mFlyLayout.getHeaderActionButton();
@@ -272,7 +272,7 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
         if (id == R.id.nav_geography) {
 
-        }  else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
 

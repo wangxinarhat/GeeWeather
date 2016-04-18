@@ -12,6 +12,7 @@ import wang.wangxinarhat.geeweather.model.WeatherInfo;
 public interface ApiInterface {
 
 
+
     @GET("weather")
     rx.Observable<WeatherInfo> mWeatherAPI(@Query("city") String city, @Query("key") String key);
 
