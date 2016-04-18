@@ -17,11 +17,15 @@ import android.view.animation.AccelerateInterpolator;
 
 import com.race604.flyrefresh.FlyRefreshLayout;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import wang.wangxinarhat.geeweather.Event.MessageEvent;
 import wang.wangxinarhat.geeweather.R;
 import wang.wangxinarhat.geeweather.model.Setting;
 import wang.wangxinarhat.geeweather.model.Weather;
@@ -32,6 +36,7 @@ import wang.wangxinarhat.geeweather.utils.LogUtils;
 import wang.wangxinarhat.geeweather.utils.MyToast;
 import wang.wangxinarhat.geeweather.utils.SPUtils;
 import wang.wangxinarhat.geeweather.utils.SomeUtils;
+import wang.wangxinarhat.geeweather.utils.StringUtils;
 
 public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPullRefreshListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -49,7 +54,7 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
     DrawerLayout mDrawerLayout;
 
 
-    private WeatherAdapter adapter;
+    private WeatherAdapter mAdapter;
     private Observer<Weather> observer;
     private boolean isLoading;
     private long exitTime = 0;
@@ -68,10 +73,35 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    @Subscribe
+    public void onMessageEvent(MessageEvent event) {
+        if (null != mAdapter && null != mRecyclerview) {
+            loadData();
+        }
+    }
+
+
     private void loadData() {
 
         String district = SPUtils.getDistrict();
-        if (district != null) {
+        if (!StringUtils.hasMeaningful(district)) {
+            district += "上海";
+        }
+
+        if (StringUtils.hasMeaningful(district)) {
             district = district.replace("市", "")
                     .replace("省", "")
                     .replace("自治区", "")
@@ -90,7 +120,7 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
                     .subscribe(getObserver());
 
         } else {
-            MyToast.showShortToast("定位失败，请手动选择位置");
+            MyToast.showShortToast("定位失败，请刷新重试");
         }
 
 
@@ -126,11 +156,11 @@ public class MainActivity extends BaseActivity implements FlyRefreshLayout.OnPul
 
                 @Override
                 public void onNext(Weather weather) {
-                    if (null == adapter) {
-                        adapter = new WeatherAdapter();
+                    if (null == mAdapter) {
+                        mAdapter = new WeatherAdapter();
                     }
-                    mRecyclerview.setAdapter(adapter);
-                    adapter.setData(weather);
+                    mRecyclerview.setAdapter(mAdapter);
+                    mAdapter.setData(weather);
                 }
             };
         }

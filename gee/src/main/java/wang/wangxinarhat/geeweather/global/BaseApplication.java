@@ -10,12 +10,16 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 
+import org.greenrobot.eventbus.EventBus;
+
 import de.greenrobot.dao.query.QueryBuilder;
 import wang.wangxinarhat.dao.CITY;
 import wang.wangxinarhat.dao.CITYDao;
 import wang.wangxinarhat.dao.DaoMaster;
 import wang.wangxinarhat.dao.DaoSession;
+import wang.wangxinarhat.geeweather.Event.MessageEvent;
 import wang.wangxinarhat.geeweather.utils.SPUtils;
+import wang.wangxinarhat.geeweather.utils.StringUtils;
 
 /**
  * Created by wang on 2016/3/4.
@@ -65,11 +69,11 @@ public class BaseApplication extends Application implements AMapLocationListener
         }
 
 
-
         initLocation();
         setupDatabase();
 
     }
+
     private boolean ExistSDCard() {
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
             return true;
@@ -98,7 +102,7 @@ public class BaseApplication extends Application implements AMapLocationListener
 //设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setMockEnable(false);
 //设置定位间隔,单位毫秒,默认为2000ms  30min
-        mLocationOption.setInterval(1000 * 60 * 60);
+        mLocationOption.setInterval(1000 * 6);
 //给定位客户端对象设置定位参数
         mLocationClient.setLocationOption(mLocationOption);
 //启动定位
@@ -106,7 +110,6 @@ public class BaseApplication extends Application implements AMapLocationListener
 
 
     }
-
 
 
     @Override
@@ -117,8 +120,20 @@ public class BaseApplication extends Application implements AMapLocationListener
 
 
                 // TODO: 2016/4/18 获取CityID
-                SPUtils.setCityInfo(aMapLocation.getCity(), aMapLocation.getDistrict());
 
+                if (StringUtils.hasMeaningful(aMapLocation.getDistrict())) {
+                    SPUtils.setCityInfo(aMapLocation.getCity(), aMapLocation.getDistrict());
+
+                    if (!StringUtils.hasMeaningful(SPUtils.getDistrict())) {
+                        EventBus.getDefault().post(new MessageEvent());
+                    }
+                }
+
+
+                Log.e(TAG + "onLocationChanged",
+
+                        "city_town   ：   " + aMapLocation.getCity() +
+                                "city_area   ：   " + aMapLocation.getDistrict());
 
 //                search(aMapLocation.getProvince(), aMapLocation.getCity(), aMapLocation.getDistrict());
 

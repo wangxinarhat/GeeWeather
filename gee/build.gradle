@@ -48,4 +48,5 @@ dependencies {
     compile files('libs/AMap_Location_V2.4.1_20160414.jar')
 
     compile 'de.greenrobot:greendao:2.1.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
 }
