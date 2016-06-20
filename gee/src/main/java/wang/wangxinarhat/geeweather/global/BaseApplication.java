@@ -117,26 +117,14 @@ public class BaseApplication extends Application implements AMapLocationListener
         if (aMapLocation != null) {
             if (aMapLocation.getErrorCode() == 0) {
                 //定位成功回调信息，设置相关消息
-
-
-                // TODO: 2016/4/18 获取CityID
-
                 if (StringUtils.hasMeaningful(aMapLocation.getDistrict())) {
                     SPUtils.setCityInfo(aMapLocation.getCity(), aMapLocation.getDistrict());
 
                     if (!StringUtils.hasMeaningful(SPUtils.getDistrict())) {
+                        search(aMapLocation.getProvince(), aMapLocation.getCity(), aMapLocation.getDistrict());
                         EventBus.getDefault().post(new MessageEvent());
                     }
                 }
-
-
-                Log.e(TAG + "onLocationChanged",
-
-                        "city_town   ：   " + aMapLocation.getCity() +
-                                "city_area   ：   " + aMapLocation.getDistrict());
-
-//                search(aMapLocation.getProvince(), aMapLocation.getCity(), aMapLocation.getDistrict());
-
 
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
@@ -149,7 +137,7 @@ public class BaseApplication extends Application implements AMapLocationListener
 
 
     private void setupDatabase() {
-        // 通过 DaoMaster 的内部类 DevOpenHelper，你可以得到一个便利的 SQLiteOpenHelper 对象。
+        // 通过 DaoMaster 的内部类 DevOpenHelper，可以得到一个便利的 SQLiteOpenHelper 对象。
         // 可能你已经注意到了，你并不需要去编写「CREATE TABLE」这样的 SQL 语句，因为 greenDAO 已经帮你做了。
         // 注意：默认的 DaoMaster.DevOpenHelper 会在数据库升级时，删除所有的表，意味着这将导致数据的丢失。
         // 所以，在正式的项目中，你还应该做一层封装，来实现数据库的安全升级。
@@ -158,13 +146,10 @@ public class BaseApplication extends Application implements AMapLocationListener
         // 注意：该数据库连接属于 DaoMaster，所以多个 Session 指的是相同的数据库连接。
         daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
-
-
     }
 
 
-    private void search(String city_province, String city_town, String city_area) {
-
+    private CITY search(String city_province, String city_town, String city_area) {
 
         if (city_province != null) {
             city_province = city_province.replace("市", "")
@@ -193,30 +178,11 @@ public class BaseApplication extends Application implements AMapLocationListener
                     .replace("区", "")
                     .replace("盟", "");
         }
-
-        Log.e(TAG,
-
-                "city_province   ：   " + city_province +
-                        "city_town   ：   " + city_town +
-                        "city_area   ：   " + city_area);
-
-
-        CITY city = getCityInfoDao().queryBuilder().where(CITYDao.Properties.City_town.eq(city_town)).unique();
-
-
-//         在 QueryBuilder 类中内置两个 Flag 用于方便输出执行的 SQL 语句与传递参数的值
+        //在 QueryBuilder 类中内置两个 Flag 用于方便输出执行的 SQL 语句与传递参数的值
         QueryBuilder.LOG_SQL = true;
         QueryBuilder.LOG_VALUES = true;
 
-        if (null == city) {
-
-            Log.e(TAG, "查询结果 cityID  ： " + city);
-        } else {
-
-            Log.e(TAG, "查询结果 cityID  ： " + city.getCity_id());
-        }
-
-
+        return getCityInfoDao().queryBuilder().where(CITYDao.Properties.City_town.eq(city_town)).unique();
     }
 
     private CITYDao getCityInfoDao() {
